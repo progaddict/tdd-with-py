@@ -1,11 +1,16 @@
 import unittest
 
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class NewVisitorTest(unittest.TestCase):
 
     def setUp(self):
-        self.browser = webdriver.Firefox()
+        # https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver
+        caps = DesiredCapabilities.FIREFOX
+        caps['marionette'] = True
+        caps['binary'] = '/usr/bin/firefox'
+        self.browser = webdriver.Firefox(capabilities=caps)
         self.browser.implicitly_wait(3)
 
     def tearDown(self):
