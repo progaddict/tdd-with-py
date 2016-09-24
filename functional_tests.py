@@ -28,7 +28,7 @@ class NewVisitorTest(unittest.TestCase):
             'Enter a to-do item'
         )
         input_box.send_keys('Buy peacock feathers')
-        input_box.send_keys(Keys.Enter)
+        input_box.send_keys(Keys.ENTER)
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(
