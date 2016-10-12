@@ -4,10 +4,10 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
 
-class NewVisitorTest(unittest.TestCase):
 
+class NewVisitorTest(unittest.TestCase):
     def setUp(self):
-# https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver
+        # https://developer.mozilla.org/en-US/docs/Mozilla/QA/Marionette/WebDriver
         caps = DesiredCapabilities.FIREFOX
         caps['marionette'] = True
         caps['binary'] = '/usr/bin/firefox'
@@ -29,12 +29,27 @@ class NewVisitorTest(unittest.TestCase):
         )
         input_box.send_keys('Buy peacock feathers')
         input_box.send_keys(Keys.ENTER)
+        self._check_for_row_in_list_table(
+            '1: Buy peacock feathers'
+        )
+        self._check_for_row_in_list_table(
+            '1: Buy peacock feathers'
+        )
+        input_box = self.browser.find_element_by_id('id_new_item')
+        input_box.send_keys('Use peacock feathers to make a fly')
+        input_box.send_keys(Keys.ENTER)
+        self._check_for_row_in_list_table(
+            '1: Buy peacock feathers'
+        )
+        self._check_for_row_in_list_table(
+            '2: Use peacock feathers to make a fly'
+        )
+
+    def _check_for_row_in_list_table(self, row_text):
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
-        self.assertIn(
-            '1: Buy peacock feathers',
-            [row.text for row in rows]
-        )
+        self.assertIn(row_text, [row.text for row in rows])
+
 
 if __name__ == '__main__':
     unittest.main()
