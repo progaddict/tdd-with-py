@@ -1,8 +1,11 @@
 import unittest
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 class NewVisitorTest(unittest.TestCase):
@@ -12,7 +15,7 @@ class NewVisitorTest(unittest.TestCase):
         caps['marionette'] = True
         caps['binary'] = '/usr/bin/firefox'
         self.browser = webdriver.Firefox(capabilities=caps)
-        self.browser.implicitly_wait(3)
+        self.browser.implicitly_wait(10)
 
     def tearDown(self):
         self.browser.quit()
@@ -46,6 +49,16 @@ class NewVisitorTest(unittest.TestCase):
         )
 
     def _check_for_row_in_list_table(self, row_text):
+        WebDriverWait(self.browser, 5).until(
+            EC.presence_of_element_located(
+                (By.ID, 'id_list_table')
+            )
+        )
+        WebDriverWait(self.browser, 5).until(
+            EC.presence_of_element_located(
+                (By.TAG_NAME, 'tr')
+            )
+        )
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
