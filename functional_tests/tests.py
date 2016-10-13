@@ -39,6 +39,7 @@ class NewVisitorTest(LiveServerTestCase):
         input_box = self.browser.find_element_by_id('id_new_item')
         input_box.send_keys('Use peacock feathers to make a fly')
         input_box.send_keys(Keys.ENTER)
+        self._wait_until_page_appears()
         self._check_for_row_in_list_table(
             '1: Buy peacock feathers'
         )
@@ -49,6 +50,7 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser.quit()
         self.browser = self._get_new_browser()
         self.browser.get(self.live_server_url)
+        self._wait_until_page_appears()
 
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Buy peacock feathers', page_text)
@@ -57,6 +59,7 @@ class NewVisitorTest(LiveServerTestCase):
         input_box = self.browser.find_element_by_id('id_new_item')
         input_box.send_keys('Buy milk')
         input_box.send_keys(Keys.ENTER)
+        self._wait_until_page_appears()
 
         francis_list_url = self.browser.current_url
         self.assertRegex(francis_list_url, '/lists/.+')
