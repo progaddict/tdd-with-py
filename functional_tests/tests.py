@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from django.test import LiveServerTestCase
 
 from selenium import webdriver
@@ -28,8 +30,8 @@ class NewVisitorTest(LiveServerTestCase):
             'Enter a to-do item'
         )
         input_box.send_keys('Buy peacock feathers')
-        input_box.send_keys(Keys.ENTER)
-        self._wait_until_page_appears()
+        with self._wait_until_page_appears():
+            input_box.send_keys(Keys.ENTER)
         edith_list_url = self.browser.current_url
         self.assertRegex(edith_list_url, '/lists/.+')
         self._check_for_row_in_list_table(
@@ -38,8 +40,8 @@ class NewVisitorTest(LiveServerTestCase):
 
         input_box = self.browser.find_element_by_id('id_new_item')
         input_box.send_keys('Use peacock feathers to make a fly')
-        input_box.send_keys(Keys.ENTER)
-        self._wait_until_page_appears()
+        with self._wait_until_page_appears():
+            input_box.send_keys(Keys.ENTER)
         self._check_for_row_in_list_table(
             '1: Buy peacock feathers'
         )
@@ -50,7 +52,6 @@ class NewVisitorTest(LiveServerTestCase):
         self.browser.quit()
         self.browser = self._get_new_browser()
         self.browser.get(self.live_server_url)
-        self._wait_until_page_appears()
 
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Buy peacock feathers', page_text)
@@ -58,8 +59,8 @@ class NewVisitorTest(LiveServerTestCase):
 
         input_box = self.browser.find_element_by_id('id_new_item')
         input_box.send_keys('Buy milk')
-        input_box.send_keys(Keys.ENTER)
-        self._wait_until_page_appears()
+        with self._wait_until_page_appears():
+            input_box.send_keys(Keys.ENTER)
 
         francis_list_url = self.browser.current_url
         self.assertRegex(francis_list_url, '/lists/.+')
@@ -70,17 +71,6 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertIn('Buy milk', page_text)
 
     def _check_for_row_in_list_table(self, row_text):
-        self._wait_until_page_appears()
-        WebDriverWait(self.browser, self.implicit_wait_sec).until(
-            EC.presence_of_element_located(
-                (By.ID, 'id_list_table')
-            )
-        )
-        WebDriverWait(self.browser, self.implicit_wait_sec).until(
-            EC.presence_of_element_located(
-                (By.TAG_NAME, 'tr')
-            )
-        )
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
@@ -100,9 +90,18 @@ class NewVisitorTest(LiveServerTestCase):
         browser.implicitly_wait(self.implicit_wait_sec)
         return browser
 
+    @contextmanager
     def _wait_until_page_appears(self):
+        """
+        http://www.obeythetestinggoat.com/how-to-get-selenium-to-wait-for-page-load-after-a-click.html
+        """
         WebDriverWait(self.browser, self.implicit_wait_sec).until(
             EC.presence_of_element_located(
                 (By.TAG_NAME, 'html')
             )
+        )
+        old_page = self.browser.find_element_by_tag_name('html')
+        yield
+        WebDriverWait(self.browser, self.implicit_wait_sec).until(
+            EC.staleness_of(old_page)
         )
