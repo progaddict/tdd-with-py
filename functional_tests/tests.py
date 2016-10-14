@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
     def setUp(self):
         self.implicit_wait_sec = 3
         self.browser = self._get_new_browser()
@@ -81,8 +81,9 @@ class NewVisitorTest(LiveServerTestCase):
             delta=5
         )
 
+        input_box.send_keys('testing')
         with self._wait_until_page_appears():
-            input_box.send_keys('testing\n')
+            input_box.send_keys(Keys.ENTER)
         input_box = self.browser.find_element_by_id('id_new_item')
         self.assertAlmostEqual(
             input_box.location['x'] + input_box.size['width'] / 2,
